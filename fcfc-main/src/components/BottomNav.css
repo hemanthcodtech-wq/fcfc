@@ -1,0 +1,89 @@
+/* Mobile bottom navigation */
+.bottom-nav { display: none; }
+
+@media (max-width: 768px) {
+  .bottom-nav {
+    display: flex;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: auto;
+    min-height: 52px;
+    background: var(--bg);
+    box-shadow: 0 -8px 24px rgba(0,0,0,0.08);
+    padding: 6px 4px;
+    padding-bottom: calc(6px + env(safe-area-inset-bottom));
+    gap: 0;
+    align-items: center;
+    justify-content: space-around;
+    z-index: 1000;
+    flex-wrap: nowrap;
+  }
+
+  .bottom-nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    color: var(--text-muted);
+    text-decoration: none;
+    font-size: clamp(7px, 2vw, 10px);
+    background: transparent;
+    border: none;
+    padding: 4px 0;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .bottom-nav-icon svg {
+    width: clamp(14px, 4vw, 20px);
+    height: clamp(14px, 4vw, 20px);
+  }
+
+  .bottom-nav-item.active { color: var(--navy); }
+  .bottom-nav-icon { display: block; flex-shrink: 0; }
+  .bottom-nav-label { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+
+  .coupon-sheet,
+  .gallery-sheet {
+    position: fixed;
+    left: 12px;
+    right: 12px;
+    bottom: calc(68px + env(safe-area-inset-bottom));
+    background: var(--bg);
+    border-radius: 14px;
+    padding: 8px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+    z-index: 1100;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .coupon-sheet a, .coupon-sheet .sheet-item,
+  .gallery-sheet a, .gallery-sheet .sheet-item {
+    padding: 12px 14px;
+    border-radius: 10px;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    color: var(--navy);
+    text-decoration: none;
+    font-size: 14px;
+    background: transparent;
+    transition: background 0.2s;
+  }
+
+  .coupon-sheet a:hover, .coupon-sheet .sheet-item:hover,
+  .gallery-sheet a:hover, .gallery-sheet .sheet-item:hover {
+    background: rgba(74,144,217,0.08);
+  }
+
+  .coupon-backdrop { position: fixed; inset: 0; z-index: 1050; }
+}
+
+/* Tablet — hide bottom nav, show full navbar */
+@media (min-width: 769px) {
+  .bottom-nav { display: none !important; }
+}

@@ -1,0 +1,179 @@
+.ac-intro-card {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 32px;
+  align-items: center;
+  background: var(--bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 36px;
+  margin-bottom: 32px;
+}
+
+.ac-intro-text h2 {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 12px;
+}
+
+.ac-intro-text p {
+  color: var(--text-muted);
+  font-size: 15px;
+  line-height: 1.7;
+  margin-bottom: 20px;
+}
+
+.ac-price-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--navy);
+  flex-wrap: wrap;
+}
+
+.ac-price-row strong { color: var(--accent); }
+.ac-dot { color: var(--text-muted); }
+
+.ac-coin {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
+.ac-coupon-img {
+  width: 180px;
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-out);
+  transition: transform 0.3s;
+}
+
+.ac-coupon-img:hover { transform: rotate(-3deg) scale(1.04); }
+
+/* Highlights */
+.ac-highlights {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.ac-highlight-card {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: 20px;
+}
+
+.ac-highlight-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--accent);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.ac-highlight-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--navy);
+  margin-bottom: 4px;
+}
+
+.ac-highlight-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Steps */
+.ac-section-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--navy);
+  margin-bottom: 20px;
+}
+
+.ac-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.ac-step-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: 24px 20px;
+  text-decoration: none;
+  transition: box-shadow 0.2s, transform 0.2s;
+}
+
+.ac-step-card:hover {
+  box-shadow: var(--shadow-out);
+  transform: translateY(-3px);
+}
+
+.ac-step-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ac-step-title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--navy);
+}
+
+.ac-step-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  flex: 1;
+}
+
+.ac-step-link {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .ac-steps { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 768px) {
+  .ac-intro-card {
+    grid-template-columns: 1fr;
+    padding: 24px;
+  }
+  .ac-coupon-img {
+    width: 100%;
+    max-width: 260px;
+    margin: 0 auto;
+    display: block;
+    order: -1;
+  }
+  .ac-highlights { grid-template-columns: 1fr; }
+  .ac-steps { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .ac-intro-card { padding: 18px; }
+  .ac-price-row { font-size: 13px; }
+}

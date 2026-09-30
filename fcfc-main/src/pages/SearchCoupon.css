@@ -1,0 +1,228 @@
+/* ── Page Header ── */
+.search-header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #4A90D9 100%);
+  padding: 60px 24px;
+  text-align: center;
+  color: #fff;
+  position: relative;
+  overflow: hidden;
+}
+.search-header::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 60%, rgba(74,144,217,0.3) 0%, transparent 60%);
+}
+.search-header h1 { font-size: clamp(28px, 4vw, 40px); font-weight: 800; margin-bottom: 10px; position: relative; }
+.search-header p  { font-size: 15px; opacity: 0.8; position: relative; }
+
+/* ── Search Box ── */
+.search-box {
+  background: var(--bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 28px;
+  max-width: 720px;
+  margin: 0 auto 40px;
+}
+.search-input-wrap {
+  position: relative;
+  margin-bottom: 20px;
+}
+.search-input-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+.search-filters {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.search-filters-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* ── Results ── */
+.search-results-count {
+  font-size: 14px;
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+.search-results-list { display: grid; gap: 16px; }
+
+.result-card {
+  background: var(--bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+  padding: 20px 24px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  transition: transform 0.2s;
+}
+.result-card:hover { transform: translateY(-2px); }
+
+.result-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, var(--navy), var(--accent));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-shadow: var(--shadow-out);
+}
+.result-info { flex: 1; min-width: 160px; }
+.result-name { font-weight: 700; color: var(--navy); font-size: 15px; }
+.result-code { font-family: monospace; font-size: 13px; color: var(--text-muted); letter-spacing: 1px; }
+
+.result-meta {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.result-meta-item { text-align: center; }
+.result-meta-value { font-size: 16px; font-weight: 800; color: var(--navy); }
+.result-meta-label { font-size: 11px; color: var(--text-muted); }
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 50px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+/* ── Empty State ── */
+.search-empty {
+  text-align: center;
+  padding: 60px 24px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-card);
+}
+.search-empty-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--bg);
+  box-shadow: var(--shadow-card);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .search-box {
+    padding: 22px 16px;
+    margin-bottom: 30px;
+  }
+
+  .search-filters,
+  .result-card {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .search-filters select,
+  .search-filters button {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+
+  .result-card {
+    padding: 18px 16px;
+    gap: 14px;
+  }
+
+  .result-info {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .result-code {
+    word-break: break-word;
+  }
+
+  .result-meta {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    width: 100%;
+  }
+
+  .result-meta-item {
+    text-align: left;
+  }
+
+  .status-badge {
+    width: fit-content;
+  }
+}
+
+.search-single-result {
+  max-width: 720px;
+  margin: 0 auto;
+  background: var(--bg);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  padding: 28px 32px;
+}
+
+.search-single-result .coupon-ticket-title {
+  font-size: clamp(14px, 3vw, 24px);
+}
+
+.search-result-detail-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  font-size: 14px;
+}
+
+.search-result-detail-label {
+  color: var(--text-muted);
+  font-weight: 500;
+  flex-shrink: 0;
+}
+
+.search-result-detail-value {
+  color: var(--navy);
+  font-weight: 700;
+  text-align: right;
+  word-break: break-word;
+  padding-left: 10px;
+}
+
+@media (max-width: 480px) {
+  .search-single-result {
+    padding: 20px 16px;
+  }
+  .search-result-detail-row {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .search-result-detail-value {
+    text-align: left;
+    padding-left: 0;
+  }
+}
