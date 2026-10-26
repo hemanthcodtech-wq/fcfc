@@ -14,10 +14,9 @@ const NAV = [
   { path: '/admin/submitted',  label: 'Submitted Coupons',  icon: ClipboardList },
   { path: '/admin/renewed',    label: 'Renewed Coupons',    icon: Sparkles },
   { path: '/admin/revenue',    label: 'Revenue',            icon: DollarSign },
-  // { path: '/admin/users',      label: 'Users',              icon: Users },
-  { path: '/admin/gallery',    label: 'Gallery',            icon: Image },
+  { path: '/admin/gallery',        label: 'Gallery',            icon: Image },
+  { path: '/admin/presentations',  label: 'Presentations (PPT)', icon: Monitor },
   // { path: '/admin/links',      label: 'Links',              icon: Link2 },
-  // { path: '/admin/presentations', label: 'Presentations',   icon: Monitor },
 ]
 
 export default function AdminLayout({ children, title, subtitle }) {

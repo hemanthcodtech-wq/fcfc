@@ -163,4 +163,34 @@ router.post('/renew-coupon', async (req, res) => {
   }
 });
 
+// GET /api/general/view-file?url=...
+// Streams file inline with proper content-type so it displays in-browser instead of triggering a download
+router.get('/view-file', async (req, res) => {
+  const { url } = req.query;
+  if (!url) return res.status(400).send('URL is required');
+
+  try {
+    const protocol = url.startsWith('https') ? require('https') : require('http');
+    protocol.get(url, (remoteRes) => {
+      // Forward status
+      res.status(remoteRes.statusCode);
+
+      // Detect PDF or video, force Content-Disposition inline
+      const contentType = url.toLowerCase().includes('.mp4')
+        ? 'video/mp4'
+        : 'application/pdf';
+
+      res.setHeader('Content-Type', contentType);
+      res.setHeader('Content-Disposition', 'inline');
+      res.setHeader('Access-Control-Allow-Origin', '*');
+
+      remoteRes.pipe(res);
+    }).on('error', (err) => {
+      res.status(500).send('Error streaming document: ' + err.message);
+    });
+  } catch (err) {
+    res.status(500).send('Failed to fetch file: ' + err.message);
+  }
+});
+
 module.exports = router;

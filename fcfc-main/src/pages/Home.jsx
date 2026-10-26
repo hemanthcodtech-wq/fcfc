@@ -43,7 +43,7 @@ const flowSteps = [
   },
   {
     num: 3, emoji: '🎟️', title: '3 New Coupons',
-    desc: '3 new Fortune Crowd Fund Coupons worth $50 each are instantly generated.',
+    desc: '3 new Fortune Crowd Fund Coupons worth $30 each are instantly generated.',
     amount: '×3', color: '#27ae60', bg: 'rgba(39,174,96,0.12)'
   },
 ]
@@ -97,7 +97,7 @@ const timelineSteps = [
   },
   {
     emoji: '🎁', step: 'Step 03', title: 'Generate 3 Coupons',
-    desc: '3 new Fortune Crowd Fund Coupons worth $50 each are instantly generated. Total value: $150 — a $100 net gain on a $50 investment.',
+    desc: '3 new Fortune Crowd Fund Coupons worth $30 each are instantly generated. Total value: $90 — a $70 net gain on a $20 investment.',
     color: '#27ae60'
   },
 ]
@@ -366,7 +366,7 @@ export default function Home() {
                   <div className="tv-step-price tv-price-purple">$10</div>
                 </div>
                 <div className="tv-split" style={{ margin: 0 }}>
-                  {[['🎟️', '$50', 'FCFC #1'], ['🎟️', '$50', 'FCFC #2'], ['🎟️', '$50', 'FCFC #3']].map(([e, v, l]) => (
+                  {[['🎟️', '$30', 'FCFC #1'], ['🎟️', '$30', 'FCFC #2'], ['🎟️', '$30', 'FCFC #3']].map(([e, v, l]) => (
                     <div key={l} className="tv-split-coupon">
                       <div className="emoji">{e}</div>
                       <div className="val">{v}</div>

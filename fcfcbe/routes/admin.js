@@ -1,5 +1,6 @@
 const router = require('express').Router();
 const pool = require('../db');
+const crypto = require('crypto');
 const { galleryUpload, presentationUpload, cloudinary } = require('../middleware/upload');
 
 // ── STATS ──────────────────────────────────────────────
@@ -99,6 +100,48 @@ router.get('/coupons', async (req, res) => {
   }
 });
 
+// POST /api/admin/coupons (Admin Create Coupon - Free)
+router.post('/coupons', async (req, res) => {
+  try {
+    let { code, email, submitted_from } = req.body;
+    submitted_from = (submitted_from || 'Admin').trim();
+    email = email ? email.trim() : null;
+
+    if (code && code.trim()) {
+      code = code.trim().toUpperCase();
+      const existing = await pool.query('SELECT id FROM coupons WHERE UPPER(code) = $1', [code]);
+      if (existing.rows.length > 0) {
+        return res.status(400).json({ error: `Coupon code '${code}' already exists.` });
+      }
+    } else {
+      let unique = false;
+      while (!unique) {
+        code = 'FCFC-' + crypto.randomBytes(4).toString('hex').toUpperCase();
+        const existing = await pool.query('SELECT id FROM coupons WHERE code = $1', [code]);
+        if (existing.rows.length === 0) unique = true;
+      }
+    }
+
+    const result = await pool.query(
+      `INSERT INTO coupons (code, email, status, submitted_from, verified_at, created_at)
+       VALUES ($1, $2, 'active', $3, NOW(), NOW())
+       RETURNING *`,
+      [code, email, submitted_from]
+    );
+
+    // Also record a 0 amount or admin transaction for tracking consistency
+    await pool.query(
+      `INSERT INTO transactions (email, coupon, amount, status)
+       VALUES ($1, $2, 0, 'completed')`,
+      [email || 'admin@fcfc.io', code]
+    );
+
+    res.status(201).json({ success: true, coupon: result.rows[0] });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 // DELETE /api/admin/coupons/:id
 router.delete('/coupons/:id', async (req, res) => {
   try {
@@ -115,6 +158,59 @@ router.get('/submissions', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM submissions ORDER BY created_at DESC LIMIT 200');
     res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/admin/submissions (Admin Submit Coupon - Free)
+router.post('/submissions', async (req, res) => {
+  const { code, email } = req.body;
+  if (!code || !code.trim()) return res.status(400).json({ error: 'Coupon code is required' });
+  try {
+    const { rows } = await pool.query(
+      `SELECT * FROM coupons WHERE UPPER(code) = UPPER($1)`,
+      [code.trim()]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Coupon not found in database' });
+    if (rows[0].status === 'inactive') return res.status(400).json({ error: 'Coupon is already inactive' });
+
+    // Mark original coupon inactive
+    await pool.query(`UPDATE coupons SET status = 'inactive' WHERE id = $1`, [rows[0].id]);
+
+    // Generate 3 unique new coupons
+    const newCodes = [];
+    for (let i = 0; i < 3; i++) {
+      let unique = false;
+      let newCode = '';
+      while (!unique) {
+        newCode = 'FCFC-' + crypto.randomBytes(4).toString('hex').toUpperCase();
+        const existing = await pool.query('SELECT id FROM coupons WHERE code = $1', [newCode]);
+        if (existing.rows.length === 0) unique = true;
+      }
+      const result = await pool.query(
+        `INSERT INTO coupons (code, email, status, submitted_from, verified_at, created_at)
+         VALUES ($1, $2, 'active', $3, NOW(), NOW()) RETURNING code`,
+        [newCode, email || rows[0].email, 'Admin Free Submission']
+      );
+      newCodes.push(result.rows[0].code);
+    }
+
+    // Record submission
+    const subResult = await pool.query(
+      `INSERT INTO submissions (original_code, email, generated_codes, created_at)
+       VALUES ($1, $2, $3, NOW()) RETURNING *`,
+      [rows[0].code, email || rows[0].email, newCodes]
+    );
+
+    // Record transaction with 0 amount for admin record
+    await pool.query(
+      `INSERT INTO transactions (email, coupon, amount, status, created_at)
+       VALUES ($1, $2, 0, 'completed', NOW())`,
+      [email || rows[0].email || 'admin@fcfc.io', rows[0].code]
+    );
+
+    res.status(201).json({ success: true, submission: subResult.rows[0], newCodes });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
@@ -192,6 +288,48 @@ router.get('/renewed', async (req, res) => {
   try {
     const result = await pool.query('SELECT * FROM renewed_coupons ORDER BY created_at DESC LIMIT 200');
     res.json(result.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// POST /api/admin/renewed (Admin Renew Coupon - Free)
+router.post('/renewed', async (req, res) => {
+  const { code, days = 30 } = req.body;
+  if (!code || !code.trim()) return res.status(400).json({ error: 'Coupon code is required' });
+  try {
+    const { rows } = await pool.query(
+      `SELECT * FROM coupons WHERE UPPER(code) = UPPER($1)`, [code.trim()]
+    );
+    if (rows.length === 0) return res.status(404).json({ error: 'Coupon not found in database' });
+
+    // Calculate new expiry (+ requested days, default 30 days)
+    const baseTime = new Date(rows[0].created_at).getTime() > Date.now()
+      ? new Date(rows[0].created_at).getTime()
+      : Date.now();
+    const newExpiry = new Date(baseTime + parseInt(days, 10) * 24 * 60 * 60 * 1000);
+
+    // Update coupon to active and push date forward
+    await pool.query(
+      `UPDATE coupons SET created_at = $1, status = 'active', verified_at = NOW() WHERE id = $2`,
+      [newExpiry, rows[0].id]
+    );
+
+    // Record in renewed_coupons
+    const renewResult = await pool.query(
+      `INSERT INTO renewed_coupons (code, wallet, new_end, email, created_at)
+       VALUES ($1, $2, $3, $4, NOW()) RETURNING *`,
+      [rows[0].code, 'Admin Free Renewal', newExpiry.toISOString().split('T')[0], rows[0].email]
+    );
+
+    // Record transaction with 0 amount
+    await pool.query(
+      `INSERT INTO transactions (email, coupon, amount, status, created_at)
+       VALUES ($1, $2, 0, 'completed', NOW())`,
+      [rows[0].email || 'admin@fcfc.io', rows[0].code]
+    );
+
+    res.json({ success: true, renewed: renewResult.rows[0], newExpiry });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

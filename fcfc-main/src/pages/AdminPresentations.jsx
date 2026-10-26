@@ -75,12 +75,12 @@ export default function AdminPresentations() {
   const filtered = filter === 'All' ? videos : videos.filter(v => v.category === filter)
 
   return (
-    <AdminLayout title="Presentations" subtitle="Manage and preview all FCFC video presentations">
+    <AdminLayout title="Presentations (PPT & Videos)" subtitle="Upload, manage, and preview all PPT / PDF documents and video presentations">
       <div className="adm-page-actions">
         <div className="adm-filter-tabs">
           {CATEGORIES.map(cat => (
             <button key={cat} className={`adm-filter-tab ${filter === cat ? 'active' : ''}`} onClick={() => setFilter(cat)}>
-              {cat}
+              {cat === 'PPT' ? 'PPT / PDF' : cat}
             </button>
           ))}
         </div>
@@ -89,14 +89,14 @@ export default function AdminPresentations() {
           {loading ? 'Loading…' : 'Refresh'}
         </button>
         <button className="neu-btn neu-btn-primary adm-refresh-btn" onClick={() => setAdding(v => !v)}>
-          <Plus size={14} /> Add Video
+          <Plus size={14} /> Add Presentation (PPT / Video)
         </button>
       </div>
 
       {/* Add form */}
       {adding && (
         <div className="adm-card adm-add-form">
-          <div className="adm-card-title">Add New Presentation</div>
+          <div className="adm-card-title">Add New Presentation (PPT / PDF or Video)</div>
           <div className="adm-add-grid">
             <div className="form-group">
               <label className="form-label">Title</label>
@@ -132,7 +132,8 @@ export default function AdminPresentations() {
 
       <div className="adm-card">
         <div className="adm-card-title">
-          <Monitor size={18} /> Video Presentations
+          {filter === 'PPT' ? <FileText size={18} /> : <Monitor size={18} />}
+          {filter === 'All' ? 'All Presentations (PPT & Videos)' : filter === 'PPT' ? 'PPT / PDF Presentations' : 'Video Presentations'}
           <span className="adm-count">{filtered.length}</span>
         </div>
 
@@ -150,7 +151,7 @@ export default function AdminPresentations() {
                           <input className="neu-input" value={editData.title} onChange={e => setEditData(p => ({ ...p, title: e.target.value }))} />
                         </div>
                         <div className="form-group">
-                          <label className="form-label">Video URL</label>
+                          <label className="form-label">File / URL</label>
                           <input className="neu-input" value={editData.video_url} onChange={e => setEditData(p => ({ ...p, video_url: e.target.value }))} />
                         </div>
                         <div className="form-group">
@@ -169,27 +170,45 @@ export default function AdminPresentations() {
                     : (
                       <>
                         <div className="adm-pres-thumb" onClick={() => setPreview(v)}>
-                          {v.file_type === 'pdf'
-                            ? <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%', gap: 8 }}>
-                                <FileText size={40} color="#e74c3c" />
-                                <span style={{ fontSize: 12, color: '#666' }}>PPT Document</span>
+                          {v.file_type === 'pdf' || v.category === 'PPT'
+                            ? (
+                              <div style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                height: '100%',
+                                background: 'linear-gradient(135deg, rgba(231,76,60,0.1), rgba(74,144,217,0.1))',
+                                gap: 10
+                              }}>
+                                <FileText size={48} color="#e74c3c" />
+                                <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--navy)' }}>PDF Document</span>
                               </div>
-                            : <video src={v.file_url} preload="metadata" muted />
+                            ) : (
+                              <>
+                                <video src={v.file_url} preload="metadata" muted />
+                                <div className="adm-pres-play">
+                                  <div><Play size={22} color="#fff" fill="#fff" /></div>
+                                </div>
+                              </>
+                            )
                           }
-                          <div className="adm-pres-play">
-                            <div><Play size={22} color="#fff" fill="#fff" /></div>
-                          </div>
-                          <span className="adm-badge badge-blue adm-pres-cat">{v.category}</span>
+                          <span className={`adm-badge ${v.category === 'PPT' || v.file_type === 'pdf' ? 'badge-yellow' : 'badge-blue'} adm-pres-cat`}>
+                            {v.category === 'PPT' ? 'PPT / PDF' : v.category}
+                          </span>
                         </div>
                         <div className="adm-pres-info">
                           <div className="adm-pres-num">0{i + 1}</div>
                           <div>
                             <div className="adm-pres-title">{v.title}</div>
-                            <div className="adm-pres-desc">{v.description}</div>
+                            <div className="adm-pres-desc">{v.description || 'No description provided.'}</div>
                           </div>
                         </div>
                         <div style={{ display: 'flex', gap: 8, padding: '0 16px 16px' }}>
-                          <button className="neu-btn adm-pres-preview-btn" onClick={() => setPreview(v)}><Play size={13} /> Preview</button>
+                          <button className="neu-btn adm-pres-preview-btn" onClick={() => setPreview(v)}>
+                            {v.file_type === 'pdf' || v.category === 'PPT' ? <FileText size={13} /> : <Play size={13} />}
+                            {v.file_type === 'pdf' || v.category === 'PPT' ? 'Open Document' : 'Preview'}
+                          </button>
                           <button className="adm-icon-btn" onClick={() => startEdit(v)}><Edit2 size={14} /></button>
                           <button className="adm-icon-btn adm-icon-btn-red" onClick={() => handleDelete(v.id)}><Trash2 size={14} /></button>
                         </div>
@@ -207,9 +226,9 @@ export default function AdminPresentations() {
         <div className="adm-lightbox" onClick={() => setPreview(null)}>
           <button className="adm-lightbox-close" onClick={() => setPreview(null)}><X size={20} /></button>
           <div className="adm-lightbox-inner adm-lightbox-video" onClick={e => e.stopPropagation()}>
-            {preview.file_type === 'pdf'
-              ? <iframe src={preview.file_url} title={preview.title} style={{ width: '100%', height: '70vh', borderRadius: 12, border: 'none' }} />
-              : <video controls autoPlay style={{ width: '100%', borderRadius: 12 }}>
+            {preview.file_type === 'pdf' || preview.category === 'PPT'
+              ? <iframe src={`${import.meta.env.VITE_API_URL}/api/general/view-file?url=${encodeURIComponent(preview.file_url)}#toolbar=0&navpanes=0`} title={preview.title} style={{ width: '100%', height: '75vh', borderRadius: 12, border: 'none' }} />
+              : <video controls controlsList="nodownload" autoPlay style={{ width: '100%', borderRadius: 12 }}>
                   <source src={preview.file_url} type="video/mp4" />
                 </video>
             }

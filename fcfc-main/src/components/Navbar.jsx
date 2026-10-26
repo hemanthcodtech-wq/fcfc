@@ -46,10 +46,24 @@ const desktopLinks = [
   { label: 'Gallery', path: '/gallery/images', icon: <Image size={15} /> },
   { label: 'FAQ',     path: '/faq',          icon: <HelpCircle size={15} /> },
   { label: 'Contact', path: '/contact',      icon: <Mail size={15} /> },
+  { label: 'PPT',     path: '/presentations', icon: <FileText size={15} /> },
   { label: 'Coupon',  path: '/coupon/generate', icon: <Ticket size={15} /> },
 ]
 
-const hamburgerLinks = []
+const hamburgerLinks = [
+  { label: 'Home',               path: '/' },
+  { label: 'About',              path: '/about' },
+  { label: 'Links',              path: '/links' },
+  { label: 'Gallery (Images)',   path: '/gallery/images' },
+  { label: 'Gallery (Videos)',   path: '/gallery/videos' },
+  { label: 'FAQ',                path: '/faq' },
+  { label: 'Contact',            path: '/contact' },
+  { label: 'PPT (Presentations)', path: '/presentations' },
+  { label: 'Generate Coupon',    path: '/coupon/generate' },
+  { label: 'Submit Coupon',      path: '/coupon/submit' },
+  { label: 'Renew Coupon',       path: '/coupon/renew' },
+  { label: 'Search Coupon',      path: '/coupon/search' },
+]
 
 export default function Navbar() {
   const [dropOpen, setDropOpen]   = useState(false)
@@ -87,6 +101,31 @@ export default function Navbar() {
           {desktopLinks.map(l => {
             const isGallery = l.label === 'Gallery'
             const isCoupon = l.label === 'Coupon'
+            const isPPT = l.label === 'PPT'
+
+            if (isPPT) {
+              return (
+                <li key="ppt-dropdown" className="dropdown" ref={presRef}>
+                  <div className="dropdown-toggle" onClick={() => setPresOpen(o => !o)}>
+                    <FileText size={15} />
+                    PPT
+                    <ChevronDown size={14} style={{ transform: presOpen ? 'rotate(180deg)' : 'none', transition: '0.2s' }} />
+                  </div>
+                  {presOpen && (
+                    <div className="dropdown-menu">
+                      <Link to="/presentations" onClick={() => setPresOpen(false)}>
+                        <FileText size={15} />All Presentations
+                      </Link>
+                      {presItems.map(item => (
+                        <Link key={item.path} to={item.path} onClick={() => setPresOpen(false)}>
+                          {item.icon}{item.label}
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </li>
+              )
+            }
 
             if (isGallery) {
               return (

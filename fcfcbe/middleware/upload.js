@@ -21,11 +21,14 @@ const galleryStorage = new CloudinaryStorage({
 // Presentations — video or PDF
 const presentationStorage = new CloudinaryStorage({
   cloudinary,
-  params: async (req, file) => ({
-    folder: 'fcfc/presentations',
-    resource_type: file.mimetype === 'application/pdf' ? 'raw' : 'video',
-    public_id: `pres_${Date.now()}`,
-  }),
+  params: async (req, file) => {
+    const isPdf = file.mimetype === 'application/pdf';
+    return {
+      folder: 'fcfc/presentations',
+      resource_type: isPdf ? 'auto' : 'video',
+      public_id: `pres_${Date.now()}`,
+    };
+  },
 });
 
 const galleryUpload      = multer({ storage: galleryStorage });

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Ticket, Share2, GitBranch, Globe, Mail } from 'lucide-react'
-import { FaFacebookF, FaInstagram, FaYoutube,FaGoogle } from 'react-icons/fa'
+import { FaFacebookF, FaInstagram, FaLinkedinIn, FaGithub, FaYoutube } from 'react-icons/fa'
 import logo from '../assets/logo.png'
 import './Footer.css'
 
@@ -18,8 +18,9 @@ export default function Footer() {
   {[
     { Icon: FaFacebookF, link: 'https://facebook.com' },
     { Icon: FaInstagram, link: 'https://instagram.com' },
-    { Icon: FaYoutube, link: 'https://youtube.com' },
-    { Icon: FaGoogle, link: 'https://google.com' },
+    // { Icon: FaLinkedinIn, link: 'https://linkedin.com' },
+    // { Icon: FaGithub, link: 'https://github.com' },
+    { Icon: FaYoutube, link: 'https://youtube.com' }
   ].map(({ Icon, link }, i) => (
     <a
       key={i}
@@ -56,7 +57,7 @@ export default function Footer() {
           <Link to="/coupon/generate">Generate Coupon</Link>
           <Link to="/coupon/submit">Submit Coupon</Link>
           <Link to="/coupon/renew">Renew Coupon</Link>
-        
+          {/* <Link to="/admin/login">Admin Panel</Link> */}
           <Link to="/coupon/search">Search Coupon</Link>
         </div>
 
