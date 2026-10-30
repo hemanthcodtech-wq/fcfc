@@ -13,11 +13,12 @@ export default function AdminLogin() {
   const handleLogin = () => {
     setError('')
     if (!username || !password) { setError('Please enter both fields.'); return }
-    if (username === 'admin' && password === '123') {
+    const normalizedUser = username.trim().toLowerCase()
+    if ((normalizedUser === 'fortunecrowdfundcoupon2026@gmail.com' || normalizedUser === 'admin') && password === 'Fcfc!@14235') {
       localStorage.setItem('adminAuth', 'true')
       navigate('/admin')
     } else {
-      setError('Invalid credentials. Try admin / 123')
+      setError('Invalid credentials. Please enter a valid Admin ID and password.')
     }
   }
 
@@ -41,12 +42,12 @@ export default function AdminLogin() {
         {error && <div className="al-error">{error}</div>}
 
         <div className="form-group">
-          <label className="form-label">Username</label>
+          <label className="form-label">Admin ID</label>
           <input
             className="neu-input"
             value={username}
             onChange={e => setUsername(e.target.value)}
-            placeholder="admin"
+            placeholder="Enter your ID"
             onKeyDown={e => e.key === 'Enter' && handleLogin()}
           />
         </div>
@@ -59,7 +60,7 @@ export default function AdminLogin() {
               type={showPw ? 'text' : 'password'}
               value={password}
               onChange={e => setPassword(e.target.value)}
-              placeholder="••••••••"
+              placeholder="Enter your Password"
               onKeyDown={e => e.key === 'Enter' && handleLogin()}
             />
             <button className="al-eye" onClick={() => setShowPw(v => !v)} type="button">

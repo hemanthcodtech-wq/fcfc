@@ -1,7 +1,8 @@
 const router = require('express').Router();
 const pool = require('../db');
 const crypto = require('crypto');
-const { galleryUpload, presentationUpload, cloudinary } = require('../middleware/upload');
+const { galleryUpload, presentationUpload, s3 } = require('../middleware/upload');
+const { DeleteObjectCommand } = require('@aws-sdk/client-s3');
 
 // ── STATS ──────────────────────────────────────────────
 // GET /api/admin/stats
@@ -359,8 +360,8 @@ router.get('/gallery', async (req, res) => {
 // POST /api/admin/gallery  (multipart upload)
 router.post('/gallery', galleryUpload.single('image'), async (req, res) => {
   const { caption, category } = req.body;
-  const image_url = req.file?.path;
-  const public_id = req.file?.filename;
+  const image_url = req.file?.location || req.file?.path;
+  const public_id = req.file?.key || req.file?.filename;
   if (!image_url) return res.status(400).json({ error: 'No image uploaded', file: req.file ?? null });
   try {
     const result = await pool.query(
@@ -391,7 +392,12 @@ router.patch('/gallery/:id', async (req, res) => {
 router.delete('/gallery/:id', async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT public_id FROM gallery WHERE id = $1', [req.params.id]);
-    if (rows[0]?.public_id) await cloudinary.uploader.destroy(rows[0].public_id).catch(() => {});
+    if (rows[0]?.public_id) {
+      await s3.send(new DeleteObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET_NAME || 'fcfc',
+        Key: rows[0].public_id
+      })).catch(() => {});
+    }
     await pool.query('DELETE FROM gallery WHERE id = $1', [req.params.id]);
     res.json({ success: true });
   } catch (err) {
@@ -462,8 +468,8 @@ router.get('/presentations', async (req, res) => {
 // POST /api/admin/presentations  (multipart upload — video or PDF)
 router.post('/presentations', presentationUpload.single('file'), async (req, res) => {
   const { title, description, category } = req.body;
-  const file_url = req.file?.path;
-  const public_id = req.file?.filename;
+  const file_url = req.file?.location || req.file?.path;
+  const public_id = req.file?.key || req.file?.filename;
   const file_type = req.file?.mimetype === 'application/pdf' ? 'pdf' : 'video';
   if (!file_url) return res.status(400).json({ error: 'No file uploaded' });
   try {
@@ -496,8 +502,10 @@ router.delete('/presentations/:id', async (req, res) => {
   try {
     const { rows } = await pool.query('SELECT public_id, file_type FROM presentations WHERE id = $1', [req.params.id]);
     if (rows[0]?.public_id) {
-      const rtype = rows[0].file_type === 'pdf' ? 'raw' : 'video';
-      await cloudinary.uploader.destroy(rows[0].public_id, { resource_type: rtype }).catch(() => {});
+      await s3.send(new DeleteObjectCommand({
+        Bucket: process.env.AWS_S3_BUCKET_NAME || 'fcfc',
+        Key: rows[0].public_id
+      })).catch(() => {});
     }
     await pool.query('DELETE FROM presentations WHERE id = $1', [req.params.id]);
     res.json({ success: true });
